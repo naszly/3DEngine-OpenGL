@@ -2,8 +2,8 @@
 // Created by naszly on 8/21/22.
 //
 
-#ifndef ENGINE_SRC_RENDERER_VERTEX_BUFFER_LAYOUT_H
-#define ENGINE_SRC_RENDERER_VERTEX_BUFFER_LAYOUT_H
+#ifndef ENGINE_SRC_RENDERER_VERTEX_ARRAY_ATTRIB_H
+#define ENGINE_SRC_RENDERER_VERTEX_ARRAY_ATTRIB_H
 
 #include <GL/glew.h>
 
@@ -20,9 +20,9 @@ enum VertexType {
     Fixed = GL_FIXED
 };
 
-struct VertexBufferElement {
+struct VertexArrayAttrib {
 public:
-    VertexBufferElement(int location, VertexType type, int count, bool normalized);
+    VertexArrayAttrib(int location, VertexType type, int count, bool normalized = false);
 
     int location;
     int type;
@@ -33,15 +33,4 @@ private:
     static constexpr int getSize(VertexType type);
 };
 
-class VertexBufferLayout {
-public:
-    VertexBufferLayout &push(int location, VertexType type, int count, bool normalized = false);
-
-    void enable();
-
-private:
-    std::vector<VertexBufferElement> elements;
-    int size{0};
-};
-
-#endif //ENGINE_SRC_RENDERER_VERTEX_BUFFER_LAYOUT_H
+#endif //ENGINE_SRC_RENDERER_VERTEX_ARRAY_ATTRIB_H

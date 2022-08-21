@@ -8,9 +8,7 @@
 #include "../ecs/system.h"
 #include "shader.h"
 #include "vertex_array.h"
-#include "vertex_buffer.h"
-#include "vertex_buffer_layout.h"
-#include "element_buffer.h"
+#include "buffer.h"
 
 class RendererSystem : public System {
 public:
@@ -22,8 +20,8 @@ public:
 private:
     Shader shader;
     VertexArray va;
-    VertexBuffer vb;
-    ElementBuffer eb;
+    Buffer vb;
+    Buffer eb;
 };
 
 #endif //ENGINE_SRC_RENDERER_RENDERER_SYSTEM_H

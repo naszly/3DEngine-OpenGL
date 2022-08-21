@@ -7,75 +7,48 @@
 
 #include <GL/glew.h>
 
-enum BufferUsage {
-    streamDraw = GL_STREAM_DRAW,
-    streamRead = GL_STREAM_READ,
-    streamCopy = GL_STREAM_COPY,
-    staticDraw = GL_STATIC_DRAW,
-    staticRead = GL_STATIC_READ,
-    staticCopy = GL_STATIC_COPY,
-    dynamicDraw = GL_DYNAMIC_DRAW,
-    dynamicRead = GL_DYNAMIC_READ,
-    dynamicCopy = GL_DYNAMIC_COPY
-};
-
-enum BufferType {
-    arrayBuffer = GL_ARRAY_BUFFER,
-    elementArrayBuffer = GL_ELEMENT_ARRAY_BUFFER,
-};
-
 class Buffer {
 public:
-    Buffer() = delete;
+    Buffer() = default;
+    ~Buffer() = default;
 
     void init() {
-        glGenBuffers(1, &id);
+        glCreateBuffers(1, &id);
     }
 
-    void bind() const {
-        glBindBuffer(target, id);
-    }
-
-    void unbind() const {
-        glBindBuffer(target, 0);
+    [[nodiscard]] unsigned int getId() const {
+        return id;
     }
 
     [[nodiscard]] GLsizei getSize() const {
         return bufferSize;
     }
 
-protected:
-    Buffer(BufferType target, BufferUsage usage) : target(target), usage(usage) {
-
-    }
-
     template<typename T>
     void bufferData(const std::vector<T> &data) {
-        bind();
         GLsizei newSize = data.size() * sizeof data[0];
         if (newSize > bufferSize) {
-            glBufferData(target, newSize, &data[0], usage);
+            glNamedBufferStorage(id, newSize, &data[0], GL_DYNAMIC_STORAGE_BIT);
             bufferSize = newSize;
-        } else
-            glBufferSubData(target, 0, newSize, &data[0]);
+        } else {
+            glNamedBufferSubData(id, 0, newSize, &data[0]);
+        }
     }
 
     template<typename T>
     void bufferData(const T *data, GLsizei n) {
-        bind();
         GLsizei newSize = n;
         if (newSize > bufferSize) {
-            glBufferData(target, newSize, data, usage);
+            glNamedBufferStorage(id, newSize, data, GL_DYNAMIC_STORAGE_BIT);
             bufferSize = newSize;
-        } else
-            glBufferSubData(target, 0, newSize, data);
+        } else {
+            glNamedBufferSubData(id, 0, newSize, data);
+        }
     }
 
 private:
     unsigned int id{0};
     GLsizei bufferSize{0};
-    BufferType target;
-    BufferUsage usage;
 };
 
 
