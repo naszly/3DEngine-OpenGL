@@ -22,26 +22,27 @@ namespace impl {
     constexpr const char appLoggerName[] = "APP";
 }
 
-typedef impl::Log <impl::coreLoggerName> LogCore;
-typedef impl::Log <impl::openglLoggerName> LogOpenGL;
-typedef impl::Log <impl::appLoggerName> Log;
+typedef impl::Log<impl::coreLoggerName> LogCore;
+typedef impl::Log<impl::openglLoggerName> LogOpenGL;
+typedef impl::Log<impl::appLoggerName> Log;
 
 namespace impl {
 
     template<const char *name>
     class Log {
     private:
-        struct Logger {
-            constexpr Logger() : logger(spdlog::stdout_color_mt(name)) {
+        static auto createLogger() {
+            auto logger = spdlog::get(name);
+            if (!logger) {
+                logger = spdlog::stdout_color_mt(name);
                 logger->set_pattern("[%H:%M:%S] [t %t] [%^%n %L%$]: %v");
                 logger->set_level(LOG_LEVEL);
             }
+            return logger;
+        }
 
-            const std::shared_ptr<spdlog::logger> logger;
-        };
-
-        static const Logger &getLogger() {
-            static Logger logger;
+        static auto getLogger() {
+            static const auto logger = createLogger();
             return logger;
         }
 
@@ -50,32 +51,32 @@ namespace impl {
 
         template<typename... Args>
         static void trace(fmt::format_string<Args...> fmt, Args &&...args) {
-            getLogger().logger->log(spdlog::level::trace, fmt, std::forward<Args>(args)...);
+            getLogger()->log(spdlog::level::trace, fmt, std::forward<Args>(args)...);
         }
 
         template<typename... Args>
         static void debug(fmt::format_string<Args...> fmt, Args &&...args) {
-            getLogger().logger->log(spdlog::level::debug, fmt, std::forward<Args>(args)...);
+            getLogger()->log(spdlog::level::debug, fmt, std::forward<Args>(args)...);
         }
 
         template<typename... Args>
         static void info(fmt::format_string<Args...> fmt, Args &&...args) {
-            getLogger().logger->log(spdlog::level::info, fmt, std::forward<Args>(args)...);
+            getLogger()->log(spdlog::level::info, fmt, std::forward<Args>(args)...);
         }
 
         template<typename... Args>
         static void warning(fmt::format_string<Args...> fmt, Args &&...args) {
-            getLogger().logger->log(spdlog::level::warn, fmt, std::forward<Args>(args)...);
+            getLogger()->log(spdlog::level::warn, fmt, std::forward<Args>(args)...);
         }
 
         template<typename... Args>
         static void error(fmt::format_string<Args...> fmt, Args &&...args) {
-            getLogger().logger->log(spdlog::level::err, fmt, std::forward<Args>(args)...);
+            getLogger()->log(spdlog::level::err, fmt, std::forward<Args>(args)...);
         }
 
         template<typename... Args>
         static void critical(fmt::format_string<Args...> fmt, Args &&...args) {
-            getLogger().logger->log(spdlog::level::critical, fmt, std::forward<Args>(args)...);
+            getLogger()->log(spdlog::level::critical, fmt, std::forward<Args>(args)...);
         }
     };
 }
