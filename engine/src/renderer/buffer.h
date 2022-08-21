@@ -10,7 +10,10 @@
 class Buffer {
 public:
     Buffer() = default;
-    ~Buffer() = default;
+
+    ~Buffer() {
+        glDeleteBuffers(1, &id);
+    }
 
     void init() {
         glCreateBuffers(1, &id);

@@ -13,6 +13,10 @@ class VertexArray {
 public:
     VertexArray() = default;
 
+    ~VertexArray() {
+        glDeleteVertexArrays(1, &id);
+    }
+
     void init() {
         glCreateVertexArrays(1, &id);
     }
@@ -23,15 +27,16 @@ public:
 
     void bindVertexBuffer(Buffer &vb, std::initializer_list<VertexArrayAttrib> attributes) {
         int offset = 0;
-        for (auto &attrib : attributes) {
+        for (auto &attrib: attributes) {
             glEnableVertexArrayAttrib(id, attrib.location);
-            glVertexArrayAttribFormat(id, attrib.location, attrib.numOfComponents, attrib.type, attrib.normalized, offset);
+            glVertexArrayAttribFormat(id, attrib.location, attrib.numOfComponents, attrib.type, attrib.normalized,
+                                      offset);
             offset += attrib.typeSize * attrib.numOfComponents;
         }
 
         glVertexArrayVertexBuffer(id, bindings, vb.getId(), 0, offset);
 
-        for (auto &attrib : attributes) {
+        for (auto &attrib: attributes) {
             glVertexArrayAttribBinding(id, attrib.location, bindings);
         }
 
