@@ -70,7 +70,9 @@ void RendererSystem::render() {
 
     auto &camera = entt::locator<ICamera>::value();
 
-    camera.rotate(M_PI / 60, 0.0f);
+    int width, height;
+    context.getSize(&width, &height);
+    camera.setAspectRatio((float) width / (float) height);
 
     shader.setMat4("uProjection", camera.getProjectionMatrix());
     shader.setMat4("uView", camera.getViewMatrix());

@@ -6,6 +6,12 @@
 #include "key_codes.h"
 #include "mouse_codes.h"
 
+enum class CursorMode {
+    Normal = GLFW_CURSOR_NORMAL,
+    Hidden = GLFW_CURSOR_HIDDEN,
+    Disabled = GLFW_CURSOR_DISABLED
+};
+
 class Input {
 public:
     Input() = default;
@@ -46,6 +52,10 @@ public:
         double x, y;
         glfwGetCursorPos(glfwWindow, &x, &y);
         return {x, y};
+    }
+
+    void setCursorMode(CursorMode mode) {
+        glfwSetInputMode(glfwWindow, GLFW_CURSOR, static_cast<int>(mode));
     }
 
 private:
