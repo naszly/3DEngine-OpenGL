@@ -13,12 +13,14 @@ class VertexArray {
 public:
     VertexArray() = default;
 
-    ~VertexArray() {
-        glDeleteVertexArrays(1, &id);
-    }
+    ~VertexArray() = default;
 
     void init() {
         glCreateVertexArrays(1, &id);
+    }
+
+    void destroy() {
+        glDeleteVertexArrays(1, &id);
     }
 
     void bind() {
@@ -29,7 +31,11 @@ public:
         int offset = 0;
         for (auto &attrib: attributes) {
             glEnableVertexArrayAttrib(id, attrib.location);
-            glVertexArrayAttribFormat(id, attrib.location, attrib.numOfComponents, attrib.type, attrib.normalized,
+            glVertexArrayAttribFormat(id,
+                                      attrib.location,
+                                      attrib.numOfComponents,
+                                      attrib.type,
+                                      attrib.normalized,
                                       offset);
             offset += attrib.typeSize * attrib.numOfComponents;
         }
@@ -50,6 +56,7 @@ public:
 private:
     unsigned int id{0};
     unsigned int bindings{0};
+    GLsizei elementsCount{0};
 };
 
 #endif //ENGINE_SRC_RENDERER_VERTEX_ARRAY_H

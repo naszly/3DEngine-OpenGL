@@ -11,12 +11,14 @@ class Buffer {
 public:
     Buffer() = default;
 
-    ~Buffer() {
-        glDeleteBuffers(1, &id);
-    }
+    ~Buffer() = default;
 
     void init() {
         glCreateBuffers(1, &id);
+    }
+
+    void destroy() {
+        glDeleteBuffers(1, &id);
     }
 
     [[nodiscard]] unsigned int getId() const {
