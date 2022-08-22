@@ -7,7 +7,7 @@
 
 #include <GL/glew.h>
 
-enum VertexType {
+enum class VertexType {
     Byte = GL_BYTE,
     UnsignedByte = GL_UNSIGNED_BYTE,
     Short = GL_SHORT,
