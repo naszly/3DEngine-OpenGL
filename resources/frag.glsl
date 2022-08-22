@@ -1,7 +1,9 @@
 #version 450
 
+layout(location = 0) in vec3 vColor;
+
 out vec4 color;
 
 void main() {
-	color = vec4(0.8, 0.5, 0.5, 1.0);
+	color = vec4(vColor, 1.0);
 }
