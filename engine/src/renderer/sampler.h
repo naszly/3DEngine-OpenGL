@@ -6,6 +6,7 @@
 #define ENGINE_SRC_RENDERER_SAMPLER_H
 
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 
 enum class SamplerFilter {
     Nearest = GL_NEAREST,
@@ -41,6 +42,10 @@ public:
         glSamplerParameteri(id, GL_TEXTURE_WRAP_S, static_cast<GLint>(wrap));
         glSamplerParameteri(id, GL_TEXTURE_WRAP_T, static_cast<GLint>(wrap));
         glSamplerParameteri(id, GL_TEXTURE_WRAP_R, static_cast<GLint>(wrap));
+    }
+
+    void setBorderColor(glm::vec4 borderColor) {
+        glSamplerParameterfv(id, GL_TEXTURE_BORDER_COLOR, &borderColor[0]);
     }
 
     void destroy() {

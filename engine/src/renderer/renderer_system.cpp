@@ -56,7 +56,8 @@ RendererSystem::RendererSystem(Context &context, Input &input) : System(context,
 
     sampler.init();
     sampler.setFilter(SamplerFilter::Linear, SamplerFilter::Linear);
-    sampler.setWrap(SamplerWrap::Repeat);
+    sampler.setWrap(SamplerWrap::ClampToBorder);
+    sampler.setBorderColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
     sampler.bind(0);
 
