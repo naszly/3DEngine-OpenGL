@@ -5,6 +5,8 @@
 #include "renderer_system.h"
 #include "services/i_camera.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 void GLAPIENTRY MessageCallback(GLenum source,
                                 GLenum type,
                                 GLuint id,
@@ -76,12 +78,20 @@ void RendererSystem::render() {
 
     shader.setMat4("uProjection", camera.getProjectionMatrix());
     shader.setMat4("uView", camera.getViewMatrix());
-    shader.setMat4("uModel", glm::mat4(1.0f));
 
-    auto view = entityManager->getRegistry().view<RenderComponent>();
+
+    auto view = entityManager->getRegistry().view<RenderComponent, TransformComponent>();
 
     for (auto entity: view) {
-        auto [renderComp] = view.get(entity);
+        auto [renderComp, transform] = view.get(entity);
+        glm::mat4 model{1.0f};
+        model = glm::translate(model, transform.position);
+        model = glm::scale(model, transform.scale);
+        model = glm::rotate(model, transform.rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, transform.rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, transform.rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+
+        shader.setMat4("uModel", model);
         renderComp.vertexArray.drawElements(GL_TRIANGLES);
     }
 
