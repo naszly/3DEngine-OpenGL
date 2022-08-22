@@ -8,24 +8,28 @@
 
 class Engine {
 public:
-    ~Engine();
+    ~Engine() = default;
 
     Engine(Engine const &) = delete;
 
     void operator=(Engine const &) = delete;
 
     static Engine &getInstance() {
-        static Engine instance = Engine();
+        static Engine instance;
         return instance;
+    }
+
+    std::shared_ptr<EntityManager> getEntityManager() {
+        return entityManager;
     }
 
     void start();
 
 private:
-    Engine();
+    Engine() = default;
 
     Window window{1280, 720, "Engine"};
-    EntityManager entityManager;
+    std::shared_ptr<EntityManager> entityManager{std::make_shared<EntityManager>()};
 
     static double getDeltaTime() {
         using clock = std::chrono::high_resolution_clock;

@@ -2,7 +2,6 @@
 #ifndef ENGINE_SRC_ECS_ENTITY_MANAGER_H
 #define ENGINE_SRC_ECS_ENTITY_MANAGER_H
 
-#include "system.h"
 #include <entt/entt.hpp>
 
 class Entity;
@@ -20,6 +19,8 @@ public:
     void operator=(EntityManager const &) = delete;
 
     [[nodiscard]] Entity buildEntity();
+
+    [[nodiscard]] entt::registry &getRegistry() { return registry; }
 
 private:
     entt::registry registry;

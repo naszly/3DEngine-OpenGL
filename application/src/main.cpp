@@ -3,10 +3,17 @@
 //
 
 #include "engine.h"
+#include "ecs/entity.h"
+#include "ecs/components.h"
 
 int main() {
     Log::info("Hello, world!");
     Engine &engine = Engine::getInstance();
+    auto entityManager = engine.getEntityManager();
+
+    auto entity = entityManager->buildEntity();
+
+    entity.addComponent<RenderComponent>();
 
     engine.start();
 

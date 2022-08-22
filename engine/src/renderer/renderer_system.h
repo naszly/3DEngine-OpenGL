@@ -13,15 +13,13 @@
 class RendererSystem : public System {
 public:
     RendererSystem(Context &context, Input &input);
+
     ~RendererSystem() override;
-    void update(double deltaTime) override;
+
     void render() override;
 
 private:
     Shader shader;
-    VertexArray va;
-    Buffer vb;
-    Buffer eb;
 };
 
 #endif //ENGINE_SRC_RENDERER_RENDERER_SYSTEM_H

@@ -51,6 +51,12 @@ public:
 
     void bindElementBuffer(Buffer &eb) {
         glVertexArrayElementBuffer(id, eb.getId());
+        elementsCount = eb.getSize() / (GLsizei)sizeof(unsigned int);
+    }
+
+    void drawElements(GLenum mode) {
+        bind();
+        glDrawElements(mode, elementsCount, GL_UNSIGNED_INT, nullptr);
     }
 
 private:

@@ -18,48 +18,61 @@ RendererSystem::RendererSystem(Context &context, Input &input) : System(context,
 
     shader.init("resources/vert.glsl", "resources/frag.glsl");
 
-    vb.init();
     float vertices[] = {
-            -0.5f, -0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            0.5f, 0.5f, 0.0f,
-            -0.5f, 0.5f, 0.0f
+            -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+            0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+            -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f
     };
-    vb.bufferData(vertices, sizeof(vertices));
 
-    eb.init();
     unsigned int indices[] = {
             0, 1, 2,
             2, 3, 0
     };
-    eb.bufferData(indices, sizeof(indices));
 
-    va.init();
-    va.bindVertexBuffer(vb, {VertexArrayAttrib(0, VertexType::Float, 3)});
-    va.bindElementBuffer(eb);
+    auto view = entityManager->getRegistry().view<RenderComponent>();
+
+    for (auto entity: view) {
+        auto [renderComp] = view.get(entity);
+        renderComp.vertexBuffer.init();
+        renderComp.vertexBuffer.bufferData(vertices, sizeof(vertices));
+        renderComp.elementBuffer.init();
+        renderComp.elementBuffer.bufferData(indices, sizeof(indices));
+        renderComp.vertexArray.init();
+        renderComp.vertexArray.bindVertexBuffer(renderComp.vertexBuffer, {
+                VertexArrayAttrib(0, VertexType::Float, 3),
+                VertexArrayAttrib(1, VertexType::Float, 3)
+        });
+        renderComp.vertexArray.bindElementBuffer(renderComp.elementBuffer);
+    }
 
     glDisable(GL_CULL_FACE);
 }
 
 RendererSystem::~RendererSystem() {
+    auto view = entityManager->getRegistry().view<RenderComponent>();
 
-}
-
-void RendererSystem::update(double deltaTime) {
-    System::update(deltaTime);
+    for (auto entity: view) {
+        auto [renderComp] = view.get(entity);
+        renderComp.vertexArray.destroy();
+        renderComp.vertexBuffer.destroy();
+        renderComp.elementBuffer.destroy();
+    }
 }
 
 void RendererSystem::render() {
-    System::render();
 
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shader.bind();
 
-    va.bind();
+    auto view = entityManager->getRegistry().view<RenderComponent>();
 
-    glDrawElements(GL_TRIANGLES, eb.getSize() / sizeof(unsigned int), GL_UNSIGNED_INT, nullptr);
+    for (auto entity: view) {
+        auto [renderComp] = view.get(entity);
+        renderComp.vertexArray.drawElements(GL_TRIANGLES);
+    }
 
 }
 
