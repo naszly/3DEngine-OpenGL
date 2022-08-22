@@ -2,7 +2,9 @@
 #ifndef ENGINE_SRC_CORE_KEY_CODES_H
 #define ENGINE_SRC_CORE_KEY_CODES_H
 
-enum KeyCode : unsigned int {
+#include <magic_enum.hpp>
+
+enum class KeyCode {
     /* Printable keys */
     Space = 32,
     Apostrophe = 39,  /* ' */
@@ -126,7 +128,13 @@ enum KeyCode : unsigned int {
     RightAlt = 346,
     RightSuper = 347,
     Menu = 348
+};
 
+template <>
+struct magic_enum::customize::enum_range<KeyCode> {
+    static constexpr int min = 32;
+    static constexpr int max = 348;
+    // (max - min) must be less than UINT16_MAX.
 };
 
 #endif //ENGINE_SRC_CORE_KEY_CODES_H

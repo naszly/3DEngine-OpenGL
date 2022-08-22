@@ -2,6 +2,8 @@
 #ifndef ENGINE_SRC_CORE_EVENT_H
 #define ENGINE_SRC_CORE_EVENT_H
 
+#include <magic_enum.hpp>
+
 enum class EventType {
     None = 0,
     WindowClose, WindowResize,
@@ -22,7 +24,7 @@ public:
     [[nodiscard]] EventType getEventType() const { return type; }
 
     [[nodiscard]] virtual std::string toString() const {
-        return type == EventType::None ? "None" : "Unknown";
+        return "Event: " + std::string(magic_enum::enum_name(type));
     }
 
 protected:

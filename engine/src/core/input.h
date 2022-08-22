@@ -27,12 +27,12 @@ public:
     }
 
     [[nodiscard]] bool isKeyPressed(KeyCode keyCode) const {
-        auto state = glfwGetKey(glfwWindow, keyCode);
+        auto state = glfwGetKey(glfwWindow, static_cast<int>(keyCode));
         return state == GLFW_PRESS;
     }
 
     [[nodiscard]] bool isMouseButtonPressed(MouseCode mouseCode) const {
-        auto state = glfwGetMouseButton(glfwWindow, mouseCode);
+        auto state = glfwGetMouseButton(glfwWindow, static_cast<int>(mouseCode));
         return state == GLFW_PRESS;
     }
 

@@ -56,6 +56,12 @@ CPMAddPackage(
         "STB_INSTALL OFF"
 )
 
+CPMAddPackage(
+        NAME magic_enum
+        GITHUB_REPOSITORY Neargye/magic_enum
+        GIT_TAG v0.8.1
+)
+
 file(
         GLOB_RECURSE SOURCE_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
@@ -76,6 +82,7 @@ target_link_libraries(
         glm
         EnTT
         stb::image
+        magic_enum
 )
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC

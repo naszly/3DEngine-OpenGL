@@ -23,7 +23,7 @@ public:
     static const EventType eventType = EventType::MouseButtonPressed;
 
     [[nodiscard]] std::string toString() const override {
-        return "MouseButtonPressedEvent: " + std::to_string(button);
+        return "MouseButtonPressedEvent: " + std::string(magic_enum::enum_name(button));
     }
 };
 
@@ -35,7 +35,7 @@ public:
     static const EventType eventType = EventType::MouseButtonReleased;
 
     [[nodiscard]] std::string toString() const override {
-        return "MouseButtonReleasedEvent: " + std::to_string(button);
+        return "MouseButtonReleasedEvent: " + std::string(magic_enum::enum_name(button));
     }
 };
 

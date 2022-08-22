@@ -2,7 +2,7 @@
 #ifndef ENGINE_SRC_CORE_MOUSE_CODES_H
 #define ENGINE_SRC_CORE_MOUSE_CODES_H
 
-enum MouseCode : unsigned int {
+enum class MouseCode {
     Button0 = 0,
     Button1 = 1,
     Button2 = 2,

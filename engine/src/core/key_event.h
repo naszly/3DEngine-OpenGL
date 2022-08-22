@@ -18,15 +18,15 @@ protected:
 
 class KeyPressedEvent : public KeyEvent {
 public:
-    explicit KeyPressedEvent(const KeyCode keycode, bool repeat = false) :
-            KeyEvent(eventType, keycode), repeat(repeat) {}
+    explicit KeyPressedEvent(const KeyCode keyCode, bool repeat = false) :
+            KeyEvent(eventType, keyCode), repeat(repeat) {}
 
     [[nodiscard]] bool isRepeat() const { return repeat; }
 
     static const EventType eventType = EventType::KeyPressed;
 
     [[nodiscard]] std::string toString() const override {
-        return "KeyPressedEvent: " + std::to_string(keyCode) + " (" + std::to_string(repeat) + ")";
+        return "KeyPressedEvent: " + std::string(magic_enum::enum_name(keyCode)) + " (" + std::to_string(repeat) + ")";
     }
 
 private:
@@ -35,25 +35,25 @@ private:
 
 class KeyReleasedEvent : public KeyEvent {
 public:
-    explicit KeyReleasedEvent(const KeyCode keycode) :
-            KeyEvent(eventType, keycode) {}
+    explicit KeyReleasedEvent(const KeyCode keyCode) :
+            KeyEvent(eventType, keyCode) {}
 
     static const EventType eventType = EventType::KeyReleased;
 
     [[nodiscard]] std::string toString() const override {
-        return "KeyReleasedEvent: " + std::to_string(keyCode);
+        return "KeyReleasedEvent: " + std::string(magic_enum::enum_name(keyCode));
     }
 };
 
 class KeyTypedEvent : public KeyEvent {
 public:
-    explicit KeyTypedEvent(const KeyCode keycode) :
-            KeyEvent(eventType, keycode) {}
+    explicit KeyTypedEvent(const KeyCode keyCode) :
+            KeyEvent(eventType, keyCode) {}
 
     static const EventType eventType = EventType::KeyTyped;
 
     [[nodiscard]] std::string toString() const override {
-        return "KeyTypedEvent: " + std::to_string(keyCode);
+        return "KeyTypedEvent: " + std::string(magic_enum::enum_name(keyCode));
     }
 };
 
