@@ -3,6 +3,7 @@
 //
 
 #include "renderer_system.h"
+#include "services/i_camera.h"
 
 void GLAPIENTRY MessageCallback(GLenum source,
                                 GLenum type,
@@ -66,6 +67,14 @@ void RendererSystem::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shader.bind();
+
+    auto &camera = entt::locator<ICamera>::value();
+
+    camera.rotate(M_PI / 60, 0.0f);
+
+    shader.setMat4("uProjection", camera.getProjectionMatrix());
+    shader.setMat4("uView", camera.getViewMatrix());
+    shader.setMat4("uModel", glm::mat4(1.0f));
 
     auto view = entityManager->getRegistry().view<RenderComponent>();
 
