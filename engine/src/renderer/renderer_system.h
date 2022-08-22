@@ -9,6 +9,7 @@
 #include "shader.h"
 #include "vertex_array.h"
 #include "buffer.h"
+#include "sampler.h"
 
 class RendererSystem : public System {
 public:
@@ -20,6 +21,7 @@ public:
 
 private:
     Shader shader;
+    Sampler sampler;
 };
 
 #endif //ENGINE_SRC_RENDERER_RENDERER_SYSTEM_H

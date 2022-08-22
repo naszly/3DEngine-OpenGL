@@ -47,6 +47,15 @@ CPMAddPackage(
         GIT_TAG v3.10.1
 )
 
+CPMAddPackage(
+        NAME stb
+        GITHUB_REPOSITORY gracicot/stb-cmake
+        GIT_TAG master
+        OPTIONS
+        "STB_EXPORT OFF"
+        "STB_INSTALL OFF"
+)
+
 file(
         GLOB_RECURSE SOURCE_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
@@ -66,6 +75,7 @@ target_link_libraries(
         glfw
         glm
         EnTT
+        stb::image
 )
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC

@@ -22,16 +22,19 @@ RendererSystem::RendererSystem(Context &context, Input &input) : System(context,
     shader.init("resources/vert.glsl", "resources/frag.glsl");
 
     float vertices[] = {
-            -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-            0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-            -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f
+            -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+            0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 0.0f,
+            0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 2.0f, 2.0f,
+            -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 2.0f
     };
 
     unsigned int indices[] = {
             0, 1, 2,
             2, 3, 0
     };
+
+    Texture texture;
+    texture.init("resources/wall.jpg");
 
     auto view = entityManager->getRegistry().view<RenderComponent>();
 
@@ -43,11 +46,19 @@ RendererSystem::RendererSystem(Context &context, Input &input) : System(context,
         renderComp.elementBuffer.bufferData(indices, sizeof(indices));
         renderComp.vertexArray.init();
         renderComp.vertexArray.bindVertexBuffer(renderComp.vertexBuffer, {
-                VertexArrayAttrib(0, VertexType::Float, 3),
-                VertexArrayAttrib(1, VertexType::Float, 3)
+                VertexArrayAttrib(0, VertexType::Float, 3), // position
+                VertexArrayAttrib(1, VertexType::Float, 3), // color
+                VertexArrayAttrib(2, VertexType::Float, 2) // texture
         });
         renderComp.vertexArray.bindElementBuffer(renderComp.elementBuffer);
+        renderComp.texture = texture;
     }
+
+    sampler.init();
+    sampler.setFilter(SamplerFilter::Linear, SamplerFilter::Linear);
+    sampler.setWrap(SamplerWrap::Repeat);
+
+    sampler.bind(0);
 
     glDisable(GL_CULL_FACE);
 }
@@ -60,7 +71,9 @@ RendererSystem::~RendererSystem() {
         renderComp.vertexArray.destroy();
         renderComp.vertexBuffer.destroy();
         renderComp.elementBuffer.destroy();
+        renderComp.texture.destroy();
     }
+    sampler.destroy();
 }
 
 void RendererSystem::render() {
@@ -69,6 +82,7 @@ void RendererSystem::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shader.bind();
+    sampler.bind(0);
 
     auto &camera = entt::locator<ICamera>::value();
 
@@ -92,6 +106,9 @@ void RendererSystem::render() {
         model = glm::rotate(model, transform.rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 
         shader.setMat4("uModel", model);
+
+        renderComp.texture.bind(0);
+
         renderComp.vertexArray.drawElements(GL_TRIANGLES);
     }
 
