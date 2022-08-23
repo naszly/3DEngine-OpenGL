@@ -18,7 +18,7 @@ public:
         for (auto &system: systems) system->render();
     }
 
-    void update(double dt) {
+    void update(float dt) {
         for (auto &system: systems) system->update(dt);
     }
 

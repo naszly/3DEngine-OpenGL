@@ -20,7 +20,7 @@ public:
     void operator=(System const &) = delete;
 
     virtual void render() {}// = 0;
-    virtual void update(double dt) {}// = 0;
+    virtual void update(float dt) {}// = 0;
     virtual void onEvent(Event &event) {}// = 0;
 protected:
     Context &context;

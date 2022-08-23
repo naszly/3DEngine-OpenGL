@@ -13,13 +13,13 @@ public:
 
     ~Texture() = default;
 
-    void init(const char* path);
+    void init(const char *path);
 
     void destroy() {
         glDeleteTextures(1, &id);
     }
 
-    void bind(unsigned int unit) {
+    void bind(unsigned int unit) const {
         glBindTextureUnit(unit, id);
     }
 

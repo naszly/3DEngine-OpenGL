@@ -13,7 +13,7 @@ public:
 
     ~CameraControllerSystem() override = default;
 
-    void update(double deltaTime) override;
+    void update(float deltaTime) override;
 
     void onEvent(Event &event) override;
 

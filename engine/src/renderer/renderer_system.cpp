@@ -7,7 +7,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-void GLAPIENTRY MessageCallback(GLenum source,
+void GLAPIENTRY messageCallback(GLenum source,
                                 GLenum type,
                                 GLuint id,
                                 GLenum severity,
@@ -17,7 +17,7 @@ void GLAPIENTRY MessageCallback(GLenum source,
 
 RendererSystem::RendererSystem(Context &context, Input &input) : System(context, input) {
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(MessageCallback, nullptr);
+    glDebugMessageCallback(messageCallback, nullptr);
 
     shader.init("resources/vert.glsl", "resources/frag.glsl");
 
@@ -115,7 +115,7 @@ void RendererSystem::render() {
 
 }
 
-void GLAPIENTRY MessageCallback(GLenum source,
+void GLAPIENTRY messageCallback(GLenum source,
                                 GLenum type,
                                 GLuint id,
                                 GLenum severity,

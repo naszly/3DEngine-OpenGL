@@ -12,11 +12,11 @@ CameraControllerSystem::CameraControllerSystem(Context &context, Input &input)
     input.setCursorMode(CursorMode::Disabled);
 }
 
-void CameraControllerSystem::update(double deltaTime) {
+void CameraControllerSystem::update(float deltaTime) {
     auto &camera = Services::get<ICamera>();
-    double dx = 0.0f;
-    double dy = 0.0f;
-    double dz = 0.0f;
+    float dx = 0.0f;
+    float dy = 0.0f;
+    float dz = 0.0f;
 
     if (input.isKeyPressed(KeyCode::W))
         dz -= deltaTime;

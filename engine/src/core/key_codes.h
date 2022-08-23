@@ -130,7 +130,7 @@ enum class KeyCode {
     Menu = 348
 };
 
-template <>
+template<>
 struct magic_enum::customize::enum_range<KeyCode> {
     static constexpr int min = 32;
     static constexpr int max = 348;

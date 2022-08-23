@@ -117,7 +117,7 @@ void Window::init() {
     });
 }
 
-void Window::update(double dt) {
+void Window::update(float dt) {
     glfwPollEvents();
 
     for (auto &layer: layers) {
@@ -139,7 +139,7 @@ void Window::onEvent(Event &event) {
 
     for (auto &layer: layers) {
         layer.onEvent(event);
-        if (event.Handled) return;
+        if (event.handled) return;
     }
 }
 

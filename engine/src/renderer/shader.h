@@ -11,6 +11,7 @@
 class Shader {
 public:
     Shader() = default;
+
     ~Shader() {
         deleteShader();
     }

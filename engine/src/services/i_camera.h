@@ -2,8 +2,8 @@
 // Created by naszly on 8/22/22.
 //
 
-#ifndef ENGINE_SRC_RENDERER_I_CAMERA_H
-#define ENGINE_SRC_RENDERER_I_CAMERA_H
+#ifndef ENGINE_SRC_SERVICES_I_CAMERA_H
+#define ENGINE_SRC_SERVICES_I_CAMERA_H
 
 #include <glm/glm.hpp>
 
@@ -28,4 +28,4 @@ public:
 };
 
 
-#endif //ENGINE_SRC_RENDERER_I_CAMERA_H
+#endif //ENGINE_SRC_SERVICES_I_CAMERA_H

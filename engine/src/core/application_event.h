@@ -9,9 +9,9 @@ public:
     WindowResizeEvent(unsigned int width, unsigned int height) :
             Event(eventType), width(width), height(height) {}
 
-    [[nodiscard]] unsigned int GetWidth() const { return width; }
+    [[nodiscard]] unsigned int getWidth() const { return width; }
 
-    [[nodiscard]] unsigned int GetHeight() const { return height; }
+    [[nodiscard]] unsigned int getHeight() const { return height; }
 
     static const EventType eventType = EventType::WindowResize;
 

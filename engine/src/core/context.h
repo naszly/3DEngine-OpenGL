@@ -35,7 +35,7 @@ public:
 
         auto code = glewInit();
         if (code != GLEW_OK) {
-            const char* error = (const char*)glewGetErrorString(code);
+            const char *error = (const char *) glewGetErrorString(code);
             LogCore::critical("Failed to initialize GLEW: {}", error);
             throw std::runtime_error("Failed to initialize GLEW");
         }

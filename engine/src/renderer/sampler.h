@@ -33,18 +33,18 @@ public:
         glSamplerParameteri(id, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
     }
 
-    void setFilter(SamplerFilter minFilter, SamplerFilter magFilter) {
+    void setFilter(SamplerFilter minFilter, SamplerFilter magFilter) const {
         glSamplerParameteri(id, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(minFilter));
         glSamplerParameteri(id, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(magFilter));
     }
 
-    void setWrap(SamplerWrap wrap) {
+    void setWrap(SamplerWrap wrap) const {
         glSamplerParameteri(id, GL_TEXTURE_WRAP_S, static_cast<GLint>(wrap));
         glSamplerParameteri(id, GL_TEXTURE_WRAP_T, static_cast<GLint>(wrap));
         glSamplerParameteri(id, GL_TEXTURE_WRAP_R, static_cast<GLint>(wrap));
     }
 
-    void setBorderColor(glm::vec4 borderColor) {
+    void setBorderColor(glm::vec4 borderColor) const {
         glSamplerParameterfv(id, GL_TEXTURE_BORDER_COLOR, &borderColor[0]);
     }
 
@@ -52,7 +52,7 @@ public:
         glDeleteSamplers(1, &id);
     }
 
-    void bind(unsigned int unit) {
+    void bind(unsigned int unit) const {
         glBindSampler(unit, id);
     }
 

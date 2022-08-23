@@ -20,10 +20,10 @@ public:
 
     void init();
 
-    void update(double dt);
+    void update(float dt);
 
     template<typename... Systems>
-    void addLayer(const std::string& name) {
+    void addLayer(const std::string &name) {
         layers.emplace_back(
                 name,
                 std::vector<std::shared_ptr<System>>{std::make_shared<Systems>(context, input)...}

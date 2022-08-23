@@ -19,7 +19,7 @@ public:
 
     virtual ~Event() = default;
 
-    bool Handled = false;
+    bool handled = false;
 
     [[nodiscard]] EventType getEventType() const { return type; }
 
@@ -45,7 +45,7 @@ public:
     template<typename T, typename F>
     bool dispatch(const F &func) {
         if (event.getEventType() == T::eventType) {
-            event.Handled |= func(static_cast<T &>(event));
+            event.handled |= func(static_cast<T &>(event));
             return true;
         }
         return false;

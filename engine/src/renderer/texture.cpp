@@ -5,8 +5,6 @@
 #include "texture.h"
 #include "core/log.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-
 #include <stb/stb_image.h>
 
 void Texture::init(const char *path) {

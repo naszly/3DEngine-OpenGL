@@ -23,7 +23,7 @@ public:
         glDeleteVertexArrays(1, &id);
     }
 
-    void bind() {
+    void bind() const {
         glBindVertexArray(id);
     }
 
@@ -51,10 +51,10 @@ public:
 
     void bindElementBuffer(Buffer &eb) {
         glVertexArrayElementBuffer(id, eb.getId());
-        elementsCount = eb.getSize() / (GLsizei)sizeof(unsigned int);
+        elementsCount = eb.getSize() / (GLsizei) sizeof(unsigned int);
     }
 
-    void drawElements(GLenum mode) {
+    void drawElements(GLenum mode) const {
         bind();
         glDrawElements(mode, elementsCount, GL_UNSIGNED_INT, nullptr);
     }

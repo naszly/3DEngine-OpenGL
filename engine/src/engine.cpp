@@ -18,8 +18,15 @@ void Engine::start() {
 
     window.init();
     window.addLayer<RendererSystem, CameraControllerSystem>("test");
+
+    lastTime = std::chrono::high_resolution_clock::now();
+
     while (window.isRunning()) {
-        auto dt = getDeltaTime();
-        window.update(dt);
+        auto now = std::chrono::high_resolution_clock::now();
+        float deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(now - lastTime).count();
+
+        window.update(deltaTime);
+
+        lastTime = now;
     }
 }

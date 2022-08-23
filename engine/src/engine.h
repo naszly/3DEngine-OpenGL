@@ -31,16 +31,8 @@ private:
     Window window{1280, 720, "Engine"};
     std::shared_ptr<EntityManager> entityManager{std::make_shared<EntityManager>()};
 
-    static double getDeltaTime() {
-        using clock = std::chrono::high_resolution_clock;
-        static auto now = clock::now();
-
-        auto lt = now;
-        now = clock::now();
-
-        auto elapsed = now - lt;
-        return std::chrono::duration<double>(elapsed).count();
-    }
+    std::chrono::high_resolution_clock timer;
+    std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
 
 };
 
