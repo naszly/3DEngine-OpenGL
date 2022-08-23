@@ -6,6 +6,7 @@
 #include <spdlog/pattern_formatter.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <mutex>
 
 #ifndef NDEBUG
 #define LOG_LEVEL spdlog::level::trace
@@ -32,11 +33,17 @@ namespace impl {
     class Log {
     private:
         static auto createLogger() {
+            static std::mutex loggerMutex;
             auto logger = spdlog::get(name);
             if (!logger) {
-                logger = spdlog::stdout_color_mt(name);
-                logger->set_pattern("[%H:%M:%S] [t %t] [%^%n %L%$]: %v");
-                logger->set_level(LOG_LEVEL);
+                loggerMutex.lock();
+                logger = spdlog::get(name);
+                if (!logger) {
+                    logger = spdlog::stdout_color_mt(name);
+                    logger->set_pattern("[%H:%M:%S] [t %t] [%^%n %L%$]: %v");
+                    logger->set_level(LOG_LEVEL);
+                }
+                loggerMutex.unlock();
             }
             return logger;
         }
