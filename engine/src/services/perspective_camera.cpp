@@ -40,7 +40,7 @@ void PerspectiveCamera::rotate(float dx, float dy) {
     yaw += dx;
     pitch += dy;
 
-    pitch = glm::clamp(pitch, -M_PIf / 2, M_PIf / 2);
+    pitch = glm::clamp(pitch, -glm::radians(89.9f), glm::radians(89.9f));
 
     update();
 }

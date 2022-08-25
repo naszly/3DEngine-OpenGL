@@ -82,6 +82,13 @@ void Shader::setMat4(const char *name, const glm::mat4 &mat) const {
     }
 }
 
+void Shader::setBuffer(const char *name, const Buffer &buffer, unsigned int binding) const {
+    GLuint uniformBlockIndex = glGetUniformBlockIndex(id, name);
+    glUniformBlockBinding(id, uniformBlockIndex, binding);
+    glBindBufferBase(GL_UNIFORM_BUFFER, binding, buffer.getId());
+}
+
+
 void Shader::createFromFiles(const char *vertexPath, const char *fragmentPath) {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
@@ -176,7 +183,7 @@ void Shader::getUniforms() {
     for (i = 0; i < count; i++) {
         glGetActiveUniform(id, (GLuint) i, bufSize, &length, &size, &type, name);
 
-        LogOpenGL::info("Uniform #{0} Type: {1} Name: {2}", i, type, name);
+        //LogOpenGL::info("Uniform #{0} Type: {1} Name: {2}", i, type, name);
         uniformLocations[name] = i;
     }
 }

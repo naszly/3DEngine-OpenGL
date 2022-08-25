@@ -19,7 +19,7 @@ public:
 
 private:
     float sensitivity = 0.03f;
-    float speed = 0.3f;
+    float speed = 30.0f;
 };
 
 

@@ -2,6 +2,7 @@
 #include "engine.h"
 #include "ecs/entity.h"
 #include "ecs/components.h"
+#include "renderer/model_loader.h"
 
 int main() {
     Log::info("Hello, world!");
@@ -10,15 +11,25 @@ int main() {
 
     auto entity1 = entityManager->buildEntity();
     entity1.addComponent<RenderComponent>();
-    entity1.addComponent<TransformComponent>(glm::vec3(0.5f, 0.0f, 0.0f),
+    entity1.addComponent<ModelComponent>("resources/Sponza/sponza.obj");
+    entity1.addComponent<TransformComponent>(glm::vec3(0.0f, 0.0f, 0.0f),
                                              glm::vec3(0.0f, 0.0f, 0.0f),
-                                             glm::vec3(1.0f, 1.0f, 1.0f));
+                                             glm::vec3(0.1f, 0.1f, 0.1f));
 
+    auto entity3 = entityManager->buildEntity();
+    entity3.addComponent<RenderComponent>();
+    entity3.addComponent<ModelComponent>("resources/boxes.obj");
+    entity3.addComponent<TransformComponent>(glm::vec3(0.0f, 4.0f, 0.0f),
+                                             glm::vec3(0.0f, 0.0f, 0.0f),
+                                             glm::vec3(4.0f, 4.0f, 4.0f));
+/*
     auto entity2 = entityManager->buildEntity();
     entity2.addComponent<RenderComponent>();
-    entity2.addComponent<TransformComponent>(glm::vec3(0.0f, 0.5f, 0.0f),
-                                             glm::vec3(0.0f, glm::radians(45.0f), 0.0f),
-                                             glm::vec3(1.0f, 1.5f, 1.0f));
+    entity2.addComponent<ModelComponent>("resources/Sponza/sponza.obj");
+    entity2.addComponent<TransformComponent>(glm::vec3(0.0f, 0.0f, 250.0f),
+                                             glm::vec3(0.0f, 0.0f, 0.0f),
+                                             glm::vec3(0.1f, 0.1f, 0.1f));
+*/
 
     engine.start();
 

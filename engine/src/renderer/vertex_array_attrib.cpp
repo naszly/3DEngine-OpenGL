@@ -4,9 +4,11 @@
 
 #include "vertex_array_attrib.h"
 
-VertexArrayAttrib::VertexArrayAttrib(int location, VertexType type, int count, bool normalized) :
+
+VertexArrayAttrib::VertexArrayAttrib(int location, VertexType type, int count,
+                                     VertexInternalType internalType, bool normalized) :
         location(location), type(static_cast<int>(type)), typeSize(getSize(type)),
-        numOfComponents(count), normalized(normalized) {}
+        numOfComponents(count), internalType(internalType), normalized(normalized) {}
 
 constexpr int VertexArrayAttrib::getSize(VertexType type) {
     switch (type) {
@@ -26,4 +28,19 @@ constexpr int VertexArrayAttrib::getSize(VertexType type) {
             return 8;
     }
     return 0;
+}
+
+void VertexArrayAttrib::setVertexArrayAttribFormat(GLuint id, int offset) const {
+    glEnableVertexArrayAttrib(id, location);
+    switch (internalType) {
+        case VertexInternalType::Int:
+            glVertexArrayAttribIFormat(id, location, numOfComponents, type, offset);
+            break;
+        case VertexInternalType::Float:
+            glVertexArrayAttribFormat(id, location, numOfComponents, type, normalized, offset);
+            break;
+        case VertexInternalType::Double:
+            glVertexArrayAttribLFormat(id, location, numOfComponents, type, offset);
+            break;
+    }
 }

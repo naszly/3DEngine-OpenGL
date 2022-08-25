@@ -21,7 +21,6 @@ public:
 
 private:
     Shader shader;
-    Sampler sampler;
 };
 
 #endif //ENGINE_SRC_RENDERER_RENDERER_SYSTEM_H

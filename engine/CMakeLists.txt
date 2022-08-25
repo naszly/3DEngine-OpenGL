@@ -57,6 +57,18 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
+        NAME tinygltf
+        GITHUB_REPOSITORY syoyo/tinygltf
+        GIT_TAG master
+        OPTIONS
+        "TINYGLTF_HEADER_ONLY OFF"
+        "TINYGLTF_INSTALL OFF"
+        "TINYGLTF_BUILD_TESTS OFF"
+        "TINYGLTF_BUILD_EXAMPLES OFF"
+        "TINYGLTF_BUILD_LOADER_EXAMPLE OFF"
+)
+
+CPMAddPackage(
         NAME magic_enum
         GITHUB_REPOSITORY Neargye/magic_enum
         GIT_TAG v0.8.1
@@ -82,6 +94,7 @@ target_link_libraries(
         glm
         EnTT
         stb::image
+        tinyobjloader
         magic_enum
 )
 

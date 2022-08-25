@@ -8,6 +8,11 @@
 #include <stb/stb_image.h>
 
 void Texture::init(const char *path) {
+    if (textureCache.find(path) != textureCache.end()) {
+        id = textureCache[path];
+        return;
+    }
+
     int width, height, channels;
 
     stbi_set_flip_vertically_on_load(true);
@@ -16,9 +21,12 @@ void Texture::init(const char *path) {
 
     if (data) {
         glCreateTextures(GL_TEXTURE_2D, 1, &id);
-        glTextureStorage2D(id, 1, GL_RGB8, width, height);
-        glTextureSubImage2D(id, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+        GLenum format = channels == 4 ? GL_RGBA : GL_RGB;
+        GLenum internalFormat = channels == 4 ? GL_RGBA16 : GL_RGB16;
+        glTextureStorage2D(id, 1, internalFormat, width, height);
+        glTextureSubImage2D(id, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, data);
         glGenerateTextureMipmap(id);
+        textureCache[path] = id;
     } else {
         LogCore::error("Failed to load texture {}", path);
     }

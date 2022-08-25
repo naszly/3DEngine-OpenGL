@@ -4,6 +4,7 @@
 
 #include "renderer_system.h"
 #include "services/i_camera.h"
+#include "model_loader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -21,47 +22,19 @@ RendererSystem::RendererSystem(Context &context, Input &input) : System(context,
 
     shader.init("resources/vert.glsl", "resources/frag.glsl");
 
-    float vertices[] = {
-            -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 0.0f,
-            0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 2.0f, 2.0f,
-            -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 2.0f
-    };
-
-    unsigned int indices[] = {
-            0, 1, 2,
-            2, 3, 0
-    };
-
-    Texture texture;
-    texture.init("resources/wall.jpg");
-
-    auto view = entityManager->getRegistry().view<RenderComponent>();
+    auto view = entityManager->getRegistry().view<RenderComponent, ModelComponent>();
 
     for (auto entity: view) {
-        auto [renderComp] = view.get(entity);
-        renderComp.vertexBuffer.init();
-        renderComp.vertexBuffer.bufferData(vertices, sizeof(vertices));
-        renderComp.elementBuffer.init();
-        renderComp.elementBuffer.bufferData(indices, sizeof(indices));
-        renderComp.vertexArray.init();
-        renderComp.vertexArray.bindVertexBuffer(renderComp.vertexBuffer, {
-                VertexArrayAttrib(0, VertexType::Float, 3), // position
-                VertexArrayAttrib(1, VertexType::Float, 3), // color
-                VertexArrayAttrib(2, VertexType::Float, 2) // texture
-        });
-        renderComp.vertexArray.bindElementBuffer(renderComp.elementBuffer);
-        renderComp.texture = texture;
+        auto [render, model] = view.get<RenderComponent, ModelComponent>(entity);
+
+        render = ModelLoader::getRenderComponent(model);
     }
 
-    sampler.init();
-    sampler.setFilter(SamplerFilter::Linear, SamplerFilter::Linear);
-    sampler.setWrap(SamplerWrap::ClampToBorder);
-    sampler.setBorderColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    shader.setBuffer("uMaterialArray", ModelLoader::getMaterialBuffer(), 0);
 
-    sampler.bind(0);
-
-    glDisable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 }
 
 RendererSystem::~RendererSystem() {
@@ -72,9 +45,7 @@ RendererSystem::~RendererSystem() {
         renderComp.vertexArray.destroy();
         renderComp.vertexBuffer.destroy();
         renderComp.elementBuffer.destroy();
-        renderComp.texture.destroy();
     }
-    sampler.destroy();
 }
 
 void RendererSystem::render() {
@@ -83,7 +54,7 @@ void RendererSystem::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shader.bind();
-    sampler.bind(0);
+    //sampler.bind(0);
 
     auto &camera = entt::locator<ICamera>::value();
 
@@ -94,11 +65,9 @@ void RendererSystem::render() {
     shader.setMat4("uProjection", camera.getProjectionMatrix());
     shader.setMat4("uView", camera.getViewMatrix());
 
-
     auto view = entityManager->getRegistry().view<RenderComponent, TransformComponent>();
-
     for (auto entity: view) {
-        auto [renderComp, transform] = view.get(entity);
+        auto [mesh, transform] = view.get(entity);
         glm::mat4 model{1.0f};
         model = glm::translate(model, transform.position);
         model = glm::scale(model, transform.scale);
@@ -108,10 +77,10 @@ void RendererSystem::render() {
 
         shader.setMat4("uModel", model);
 
-        renderComp.texture.bind(0);
-
-        renderComp.vertexArray.drawElements(GL_TRIANGLES);
+        mesh.vertexArray.bind();
+        mesh.indirectCommandBuffer.draw();
     }
+
 
 }
 

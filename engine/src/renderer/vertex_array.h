@@ -30,13 +30,7 @@ public:
     void bindVertexBuffer(Buffer &vb, std::initializer_list<VertexArrayAttrib> attributes) {
         int offset = 0;
         for (auto &attrib: attributes) {
-            glEnableVertexArrayAttrib(id, attrib.location);
-            glVertexArrayAttribFormat(id,
-                                      attrib.location,
-                                      attrib.numOfComponents,
-                                      attrib.type,
-                                      attrib.normalized,
-                                      offset);
+            attrib.setVertexArrayAttribFormat(id, offset);
             offset += attrib.typeSize * attrib.numOfComponents;
         }
 
@@ -49,20 +43,13 @@ public:
         ++bindings;
     }
 
-    void bindElementBuffer(Buffer &eb) {
+    void bindElementBuffer(Buffer &eb) const {
         glVertexArrayElementBuffer(id, eb.getId());
-        elementsCount = eb.getSize() / (GLsizei) sizeof(unsigned int);
-    }
-
-    void drawElements(GLenum mode) const {
-        bind();
-        glDrawElements(mode, elementsCount, GL_UNSIGNED_INT, nullptr);
     }
 
 private:
     unsigned int id{0};
     unsigned int bindings{0};
-    GLsizei elementsCount{0};
 };
 
 #endif //ENGINE_SRC_RENDERER_VERTEX_ARRAY_H

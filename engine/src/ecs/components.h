@@ -9,7 +9,7 @@
 
 #include "renderer/vertex_array.h"
 #include "renderer/buffer.h"
-#include "renderer/texture.h"
+#include "renderer/indirect_command_buffer.h"
 
 struct TransformComponent {
     glm::vec3 position;
@@ -21,7 +21,11 @@ struct RenderComponent {
     VertexArray vertexArray;
     Buffer vertexBuffer;
     Buffer elementBuffer;
-    Texture texture;
+    IndirectCommandBuffer indirectCommandBuffer;
+};
+
+struct ModelComponent {
+    std::string path;
 };
 
 #endif //ENGINE_SRC_ECS_COMPONENTS_H

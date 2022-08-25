@@ -20,15 +20,26 @@ enum class VertexType {
     Fixed = GL_FIXED
 };
 
+enum class VertexInternalType {
+    Float,
+    Double,
+    Int
+};
+
 struct VertexArrayAttrib {
 public:
-    VertexArrayAttrib(int location, VertexType type, int count, bool normalized = false);
+    VertexArrayAttrib(int location, VertexType type, int count,
+                      VertexInternalType internalType = VertexInternalType::Float,
+                      bool normalized = false);
 
     int location;
     int type;
     int typeSize;
     int numOfComponents;
+    VertexInternalType internalType;
     bool normalized;
+
+    void setVertexArrayAttribFormat(GLuint id, int offset) const;
 private:
     static constexpr int getSize(VertexType type);
 };

@@ -28,6 +28,7 @@ public:
     }
 
 private:
+    inline static std::unordered_map<std::string, unsigned int> textureCache;
     unsigned int id{0};
 };
 
