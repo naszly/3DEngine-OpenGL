@@ -32,24 +32,18 @@ namespace impl {
     template<const char *name>
     class Log {
     private:
-        static auto createLogger() {
-            static std::mutex loggerMutex;
-            auto logger = spdlog::get(name);
+        static std::shared_ptr<spdlog::logger> getLogger() {
+            static std::shared_ptr<spdlog::logger> logger = spdlog::get(name);
             if (!logger) {
-                loggerMutex.lock();
-                logger = spdlog::get(name);
-                if (!logger) {
+                try {
                     logger = spdlog::stdout_color_mt(name);
                     logger->set_pattern("[%H:%M:%S] [t %t] [%^%n %L%$]: %v");
                     logger->set_level(LOG_LEVEL);
+                } catch (spdlog::spdlog_ex &ex) {
+                    logger = spdlog::get(name);
                 }
-                loggerMutex.unlock();
             }
-            return logger;
-        }
-
-        static auto getLogger() {
-            static const auto logger = createLogger();
+            assert(logger);
             return logger;
         }
 
