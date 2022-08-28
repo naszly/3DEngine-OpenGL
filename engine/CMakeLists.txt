@@ -24,7 +24,7 @@ CPMAddPackage(
 CPMAddPackage(
         NAME glfw
         GITHUB_REPOSITORY glfw/glfw
-        GIT_TAG 3.3.7
+        GIT_TAG master # new cursor shapes only available in master TODO: change this
         EXCLUDE_FROM_ALL YES
         OPTIONS
         "BUILD_SHARED_LIBS OFF"
