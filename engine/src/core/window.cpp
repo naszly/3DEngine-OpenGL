@@ -1,5 +1,7 @@
 
 #include "window.h"
+
+#include <ranges>
 #include "log.h"
 
 Window::Window(int width, int height, const std::string &name)
@@ -137,10 +139,12 @@ void Window::onEvent(Event &event) {
     if (dispatcher.dispatch<WindowCloseEvent>([this](WindowCloseEvent &event) { return onWindowCloseEvent(event); }))
         return;
 
-    for (auto &layer: layers) {
+    for (auto &layer: std::ranges::reverse_view(layers)) {
         layer.onEvent(event);
-        if (event.handled) return;
+        if (event.handled)
+            break;
     }
+
 }
 
 bool Window::onWindowCloseEvent(WindowCloseEvent &event) {

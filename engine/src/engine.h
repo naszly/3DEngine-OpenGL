@@ -19,6 +19,10 @@ public:
         return instance;
     }
 
+    Window &getWindow() {
+        return window;
+    }
+
     std::shared_ptr<EntityManager> getEntityManager() {
         return entityManager;
     }
@@ -26,7 +30,7 @@ public:
     void start();
 
 private:
-    Engine() = default;
+    Engine();
 
     Window window{1280, 720, "Engine"};
     std::shared_ptr<EntityManager> entityManager{std::make_shared<EntityManager>()};

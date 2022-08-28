@@ -2,7 +2,9 @@
 #include "engine.h"
 #include "ecs/entity.h"
 #include "ecs/components.h"
-#include "renderer/model_loader.h"
+#include "renderer/renderer_system.h"
+#include "controller/camera_controller_system.h"
+#include "gui_system.h"
 
 int main() {
     Log::info("Hello, world!");
@@ -31,6 +33,8 @@ int main() {
                                              glm::vec3(0.1f, 0.1f, 0.1f));
 */
 
+    engine.getWindow().addLayer<RendererSystem, CameraControllerSystem>("3dScene");
+    engine.getWindow().addLayer<GuiSystem>("gui");
     engine.start();
 
     return 0;

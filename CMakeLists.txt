@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.19)
 project(3DEngine-OpenGL)
 
 include(cmake/CPM.cmake)
+include(cmake/ImGui.cmake)
 
 add_subdirectory(engine)
 add_subdirectory(application)

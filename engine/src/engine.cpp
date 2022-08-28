@@ -16,9 +16,6 @@ void Engine::start() {
                                                   glm::radians(60.0f));
     }
 
-    window.init();
-    window.addLayer<RendererSystem, CameraControllerSystem>("test");
-
     lastTime = std::chrono::high_resolution_clock::now();
 
     while (window.isRunning()) {
@@ -29,4 +26,8 @@ void Engine::start() {
 
         lastTime = now;
     }
+}
+
+Engine::Engine() {
+    window.init();
 }

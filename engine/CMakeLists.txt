@@ -92,6 +92,7 @@ target_link_libraries(
         libglew_static
         glfw
         glm
+        ImGui
         EnTT
         stb::image
         tinyobjloader

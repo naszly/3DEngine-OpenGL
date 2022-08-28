@@ -20,6 +20,9 @@ public:
 private:
     float sensitivity = 0.03f;
     float speed = 30.0f;
+    float dx = 0.0f;
+    float dy = 0.0f;
+    float dz = 0.0f;
 };
 
 
