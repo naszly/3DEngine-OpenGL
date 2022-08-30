@@ -3,7 +3,6 @@
 //
 
 #include "renderer_system.h"
-#include "services/i_camera.h"
 #include "model_loader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -16,7 +15,8 @@ void GLAPIENTRY messageCallback(GLenum source,
                                 const GLchar *message,
                                 const void *userParam);
 
-RendererSystem::RendererSystem(Context &context, Input &input) : System(context, input) {
+RendererSystem::RendererSystem(Context &context, Input &input)
+        : System(context, input), player(entityManager->getEntityByTag("player")) {
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(messageCallback, nullptr);
 
@@ -54,13 +54,12 @@ void RendererSystem::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shader.bind();
-    //sampler.bind(0);
 
-    auto &camera = entt::locator<ICamera>::value();
+    auto &camera = player.getComponent<PerspectiveCameraComponent>();
 
     int width, height;
     context.getSize(&width, &height);
-    camera.setAspectRatio((float) width / (float) height);
+    camera.aspect = (float) width / (float) height;
 
     shader.setMat4("uProjection", camera.getProjectionMatrix());
     shader.setMat4("uView", camera.getViewMatrix());

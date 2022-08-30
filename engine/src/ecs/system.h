@@ -6,6 +6,7 @@
 #include "core/input.h"
 #include "core/event.h"
 #include "ecs/entity_manager.h"
+#include "ecs/entity.h"
 #include "ecs/components.h"
 
 class System {

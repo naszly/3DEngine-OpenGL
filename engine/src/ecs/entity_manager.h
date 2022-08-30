@@ -20,6 +20,8 @@ public:
 
     [[nodiscard]] Entity buildEntity();
 
+    [[nodiscard]] Entity getEntityByTag(entt::hashed_string tag);
+
     [[nodiscard]] entt::registry &getRegistry() { return registry; }
 
 private:

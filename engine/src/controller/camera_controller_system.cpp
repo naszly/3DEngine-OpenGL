@@ -3,17 +3,15 @@
 //
 
 #include "camera_controller_system.h"
-#include "services/services.h"
-#include "services/i_camera.h"
 #include "core/mouse_event.h"
 #include "core/key_event.h"
 
 CameraControllerSystem::CameraControllerSystem(Context &context, Input &input)
-        : System(context, input) {
+        : System(context, input), player(entityManager->getEntityByTag("player")) {
 }
 
 void CameraControllerSystem::update(float deltaTime) {
-    auto &camera = Services::get<ICamera>();
+    auto &camera = player.getComponent<PerspectiveCameraComponent>();
     camera.move(dx * deltaTime * speed, dy * deltaTime * speed, dz * deltaTime * speed);
 }
 
@@ -111,7 +109,7 @@ void CameraControllerSystem::onEvent(Event &event) {
 
     if (cameraControl) {
         dispatcher.dispatch<MouseMovedEvent>([&](MouseMovedEvent &event) {
-            auto &camera = Services::get<ICamera>();
+            auto &camera = player.getComponent<PerspectiveCameraComponent>();
             static float lastX = event.getX(), lastY = event.getY();
             float mdx = event.getX() - lastX;
             float mdy = event.getY() - lastY;
@@ -120,7 +118,10 @@ void CameraControllerSystem::onEvent(Event &event) {
             if (firstMouse) {
                 firstMouse = false;
             } else {
-                camera.rotate(mdx * sensitivity, -mdy * sensitivity);
+                yaw += sensitivity * mdx;
+                pitch += sensitivity * -mdy;
+                pitch = glm::clamp(pitch, -glm::radians(89.0f), glm::radians(89.0f));
+                camera.setRotation(pitch, yaw);
             }
             return true;
         });

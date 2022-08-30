@@ -11,12 +11,24 @@ int main() {
     Engine &engine = Engine::getInstance();
     auto entityManager = engine.getEntityManager();
 
+    auto player = entityManager->buildEntity();
+    player.addTag("player");
+    player.addComponent<PerspectiveCameraComponent>(
+            glm::vec3(0.0f, 0.0f, 0.0f), // position
+            glm::vec3(1.0f, 0.0f, 0.0f), // front
+            glm::vec3(0.0f, 1.0f, 0.0f), // up
+            glm::radians(45.0f), // fov
+            0.1f, // near
+            1000.0f // far
+    );
+
     auto entity1 = entityManager->buildEntity();
     entity1.addComponent<RenderComponent>();
     entity1.addComponent<ModelComponent>("resources/Sponza/sponza.obj");
     entity1.addComponent<TransformComponent>(glm::vec3(0.0f, 0.0f, 0.0f),
                                              glm::vec3(0.0f, 0.0f, 0.0f),
                                              glm::vec3(0.1f, 0.1f, 0.1f));
+    entity1.addTag("sponza");
 
     auto entity3 = entityManager->buildEntity();
     entity3.addComponent<RenderComponent>();

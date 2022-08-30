@@ -15,6 +15,20 @@ public:
         registry.emplace<T>(id, std::forward<Args>(args)...);
     }
 
+    template<typename T>
+    void removeComponent() {
+        registry.remove<T>(id);
+    }
+
+    template<typename T>
+    T &getComponent() {
+        return registry.get<T>(id);
+    }
+
+    void addTag(entt::hashed_string tag) {
+        registry.emplace<entt::hashed_string>(id, tag);
+    }
+
 private:
     Entity(entt::entity entity, entt::registry &registry) : id(entity), registry(registry) {}
 

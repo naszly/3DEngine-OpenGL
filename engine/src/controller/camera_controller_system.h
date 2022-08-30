@@ -18,11 +18,14 @@ public:
     void onEvent(Event &event) override;
 
 private:
+    Entity player;
     float sensitivity = 0.03f;
     float speed = 30.0f;
     float dx = 0.0f;
     float dy = 0.0f;
     float dz = 0.0f;
+    float pitch = 0.0f;
+    float yaw = 0.0f;
 };
 
 

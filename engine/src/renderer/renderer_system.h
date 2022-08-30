@@ -21,6 +21,7 @@ public:
 
 private:
     Shader shader;
+    Entity player;
 };
 
 #endif //ENGINE_SRC_RENDERER_RENDERER_SYSTEM_H
