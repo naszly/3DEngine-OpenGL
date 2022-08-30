@@ -24,9 +24,10 @@ public:
 
     template<typename... Systems>
     void addLayer(const std::string &name) {
+        static_assert((std::is_base_of<System, Systems>() && ...), "All systems must be derived from System");
         layers.emplace_back(
                 name,
-                std::vector<std::shared_ptr<System>>{std::make_shared<Systems>(context, input)...}
+                std::initializer_list<std::shared_ptr<System>>{std::make_shared<Systems>(context, input)...}
         );
     }
 

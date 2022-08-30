@@ -9,8 +9,8 @@
 
 class Layer {
 public:
-    Layer(std::string name, std::vector<std::shared_ptr<System>> systems)
-            : name(std::move(name)), systems(std::move(systems)) {}
+    Layer(std::string name, std::initializer_list<std::shared_ptr<System>> systems)
+            : name(std::move(name)), systems(systems) {}
 
     ~Layer() = default;
 
