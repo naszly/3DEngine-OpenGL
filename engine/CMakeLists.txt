@@ -69,6 +69,16 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
+        NAME tinyobjloader
+        GITHUB_REPOSITORY tinyobjloader/tinyobjloader
+        GIT_TAG master
+        OPTIONS
+        "TINYOBJLOADER_USE_DOUBLE OFF"
+        "TINYOBJLOADER_BUILD_TEST_LOADER OFF"
+        "TINYOBJLOADER_BUILD_OBJ_STICHER OFF"
+)
+
+CPMAddPackage(
         NAME magic_enum
         GITHUB_REPOSITORY Neargye/magic_enum
         GIT_TAG v0.8.1
