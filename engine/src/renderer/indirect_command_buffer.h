@@ -15,6 +15,13 @@ struct DrawElementsIndirectCommand {
     GLuint  baseInstance;
 };
 
+struct DrawArraysIndirectCommand {
+    GLuint  count;
+    GLuint  instanceCount;
+    GLuint  first;
+    GLuint  baseInstance;
+};
+
 class IndirectCommandBuffer {
 public:
     IndirectCommandBuffer() = default;
@@ -23,15 +30,20 @@ public:
 
     void init(const std::vector<DrawElementsIndirectCommand> &commands);
 
+    void init(const std::vector<DrawArraysIndirectCommand> &commands);
+
     void destroy();
 
-    void bind() const;
-
     void draw() const;
+
+    void drawElements() const;
+
+    void drawArrays() const;
 
 private:
     GLuint buffer;
     GLsizei count;
+    bool isIndexed;
 };
 
 
