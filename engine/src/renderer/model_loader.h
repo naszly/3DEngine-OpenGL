@@ -35,10 +35,14 @@ struct Material {
 struct Mesh {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
-    GLuint materialIndex;
+    uint32_t materialIndex{UINT32_MAX};
     std::string diffusePath;
     std::string specularPath;
     std::string normalPath;
+
+    [[nodiscard]] bool hasMaterial() const {
+        return materialIndex != UINT32_MAX;
+    }
 };
 
 struct Model {

@@ -30,10 +30,13 @@ RenderComponent ModelLoader::getRenderComponent(const ModelComponent &modelCompo
     size_t indexOffset = 0;
     size_t vertexOffset = 0;
     for (auto &mesh: model->meshes) {
-        BindlessTexture diffuseTexture;
-        diffuseTexture.init(mesh.diffusePath.c_str());
+        if (mesh.hasMaterial()) {
+            BindlessTexture diffuseTexture;
+            if (!mesh.diffusePath.empty())
+                diffuseTexture.init(mesh.diffusePath.c_str());
 
-        materialArray[mesh.materialIndex].diffuseMap = diffuseTexture.getId();
+            materialArray[mesh.materialIndex].diffuseMap = diffuseTexture.getId();
+        }
 
         vertices.insert(vertices.end(), mesh.vertices.begin(), mesh.vertices.end());
         indices.insert(indices.end(), mesh.indices.begin(), mesh.indices.end());
