@@ -20,8 +20,11 @@ struct TransformComponent {
 
 struct RenderComponent {
     VertexArray vertexArray;
-    Buffer vertexBuffer;
-    Buffer elementBuffer;
+    Buffer posBuffer;
+    Buffer colorBuffer;
+    Buffer normalBuffer;
+    Buffer texCoordBuffer;
+    Buffer indexBuffer;
     IndirectCommandBuffer indirectCommandBuffer;
 };
 

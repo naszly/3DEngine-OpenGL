@@ -6,8 +6,13 @@
 #include "core/log.h"
 #include "renderer/bindless_texture.h"
 
-#include <tiny_obj_loader.h>
 #include <filesystem>
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+static const aiScene *loadModel(const char *path);
 
 RenderComponent ModelLoader::getRenderComponent(const ModelComponent &modelComponent) {
     auto &path = modelComponent.path;
@@ -15,149 +20,163 @@ RenderComponent ModelLoader::getRenderComponent(const ModelComponent &modelCompo
         return renderComponentCache[path];
     }
 
-    std::shared_ptr<Model> model = loadModel(path.c_str());
-
     RenderComponent renderComponent;
 
-    std::vector<Vertex> vertices;
-    std::vector<uint32_t> indices;
-    std::vector<DrawElementsIndirectCommand> commands;
+    const aiScene *scene = loadModel(path.c_str());
 
-    if (materialBuffer.getId() == 0) {
-        materialBuffer.init(BufferUsage::DynamicDraw);
+    if (!scene)
+        return renderComponent;
+
+    std::vector<uint32_t> materialIndices;
+
+    if (scene->HasMaterials()) {
+        std::filesystem::path modelPath(path);
+        for (int i = 0; i < scene->mNumMaterials; ++i) {
+            aiMaterial *material = scene->mMaterials[i];
+
+            Material materialStruct{};
+
+            if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
+                BindlessTexture bindlessTexture;
+                aiString texturePath;
+                material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath);
+                std::filesystem::path textureFullPath = modelPath.parent_path() / texturePath.C_Str();
+                bindlessTexture.init(textureFullPath.string().c_str());
+                materialStruct.diffuseMap = bindlessTexture.getId();
+            }
+
+            if (materialStruct.empty()) {
+                materialIndices.push_back(UINT32_MAX);
+            } else {
+                materialArray[materialsCount] = materialStruct;
+                materialIndices.push_back(materialsCount);
+                materialsCount++;
+            }
+
+            if (materialBuffer.getId() == 0)
+                materialBuffer.init();
+
+            materialBuffer.bufferData(&materialArray[0], materialsCount * (GLsizeiptr) sizeof(materialArray[0]));
+        }
     }
 
-    size_t indexOffset = 0;
-    size_t vertexOffset = 0;
-    for (auto &mesh: model->meshes) {
-        if (mesh.hasMaterial()) {
-            BindlessTexture diffuseTexture;
-            if (!mesh.diffusePath.empty())
-                diffuseTexture.init(mesh.diffusePath.c_str());
+    if (scene->HasMeshes()) {
+        size_t vertexCount = 0;
+        size_t indexCount = 0;
+        size_t vertexOffset = 0;
+        size_t indexOffset = 0;
 
-            materialArray[mesh.materialIndex].diffuseMap = diffuseTexture.getId();
+        std::vector<DrawElementsIndirectCommand> commands;
+
+        for (int i = 0; i < scene->mNumMeshes; ++i) {
+            vertexCount += scene->mMeshes[i]->mNumVertices;
+            indexCount += scene->mMeshes[i]->mNumFaces * 3;
         }
 
-        vertices.insert(vertices.end(), mesh.vertices.begin(), mesh.vertices.end());
-        indices.insert(indices.end(), mesh.indices.begin(), mesh.indices.end());
+        auto *positions = new aiVector3D[vertexCount];
+        auto *normals = new aiVector3D[vertexCount];
+        auto *colors = new aiColor4D[vertexCount];
+        auto *texCoords = new aiVector2D[vertexCount];
 
-        commands.emplace_back(DrawElementsIndirectCommand{
-                .count = static_cast<GLuint>(mesh.indices.size()),
-                .instanceCount = 1,
-                .firstIndex = static_cast<GLuint>(indexOffset),
-                .baseVertex = static_cast<GLuint>(vertexOffset),
-                .baseInstance = static_cast<GLuint>(mesh.materialIndex)
+        auto *indices = new uint32_t[indexCount];
+
+
+        for (int i = 0; i < scene->mNumMeshes; ++i) {
+            aiMesh *mesh = scene->mMeshes[i];
+
+            GLuint materialIndex = mesh->mMaterialIndex < materialIndices.size() ?
+                                   materialIndices[mesh->mMaterialIndex] :
+                                   UINT32_MAX;
+
+            commands.emplace_back(DrawElementsIndirectCommand{
+                    .count = static_cast<GLuint>(mesh->mNumFaces * 3),
+                    .instanceCount = 1,
+                    .firstIndex = static_cast<GLuint>(indexOffset),
+                    .baseVertex = static_cast<GLuint>(vertexOffset),
+                    .baseInstance = materialIndex
+            });
+
+            memcpy(&positions[vertexOffset], mesh->mVertices, sizeof(aiVector3D) * mesh->mNumVertices);
+            memcpy(&normals[vertexOffset], mesh->mNormals, sizeof(aiVector3D) * mesh->mNumVertices);
+
+            if (mesh->HasVertexColors(0)) {
+                memcpy(&colors[vertexOffset], mesh->mColors[0], sizeof(aiColor4D) * mesh->mNumVertices);
+            } else {
+                for (int j = 0; j < mesh->mNumVertices; ++j)
+                    colors[vertexOffset + j] = aiColor4D(1.0f, 1.0f, 1.0f, 1.0f);
+            }
+
+            if (mesh->HasTextureCoords(0)) {
+                for (int j = 0; j < mesh->mNumVertices; ++j)
+                    texCoords[vertexOffset + j] = {mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y};
+            } else {
+                memset(&texCoords[vertexOffset], 0, sizeof(aiVector2D) * mesh->mNumVertices);
+            }
+
+            vertexOffset += mesh->mNumVertices;
+
+            for (int j = 0; j < mesh->mNumFaces; ++j) {
+                aiFace face = mesh->mFaces[j];
+                for (int k = 0; k < face.mNumIndices; ++k) {
+                    indices[indexOffset++] = face.mIndices[k];
+                }
+            }
+        }
+
+        renderComponent.vertexArray.init();
+
+        renderComponent.posBuffer.init();
+        renderComponent.posBuffer.bufferData(positions, sizeof(aiVector3D) * vertexCount);
+        renderComponent.normalBuffer.init();
+        renderComponent.normalBuffer.bufferData(normals, sizeof(aiVector3D) * vertexCount);
+        renderComponent.colorBuffer.init();
+        renderComponent.colorBuffer.bufferData(colors, sizeof(aiColor4D) * vertexCount);
+        renderComponent.texCoordBuffer.init();
+        renderComponent.texCoordBuffer.bufferData(texCoords, sizeof(aiVector2D) * vertexCount);
+        renderComponent.indexBuffer.init();
+        renderComponent.indexBuffer.bufferData(indices, sizeof(uint32_t) * indexCount);
+
+        renderComponent.vertexArray.bindVertexBuffer(renderComponent.posBuffer, {
+                VertexArrayAttrib(0, VertexType::Float, 3), // position
         });
+        renderComponent.vertexArray.bindVertexBuffer(renderComponent.normalBuffer, {
+                VertexArrayAttrib(1, VertexType::Float, 3), // normal
+        });
+        renderComponent.vertexArray.bindVertexBuffer(renderComponent.colorBuffer, {
+                VertexArrayAttrib(2, VertexType::Float, 4), // color
+        });
+        renderComponent.vertexArray.bindVertexBuffer(renderComponent.texCoordBuffer, {
+                VertexArrayAttrib(3, VertexType::Float, 2), // texCoord
+        });
+        renderComponent.vertexArray.bindElementBuffer(renderComponent.indexBuffer);
 
-        indexOffset += mesh.indices.size();
-        vertexOffset += mesh.vertices.size();
+        renderComponent.indirectCommandBuffer.init(commands);
+
+        delete[] positions;
+        delete[] normals;
+        delete[] texCoords;
+        delete[] colors;
+        delete[] indices;
     }
-
-    materialBuffer.bufferData(&materialArray[0], materialsCount * (GLsizeiptr) sizeof(materialArray[0]));
-
-    LogCore::info("Loaded model: {} vertices: {} indices: {}", path, vertices.size(), indices.size());
-
-    renderComponent.vertexArray.init();
-
-    renderComponent.vertexBuffer.init(BufferUsage::StaticDraw);
-    renderComponent.vertexBuffer.bufferData(vertices);
-
-    renderComponent.elementBuffer.init(BufferUsage::StaticDraw);
-    renderComponent.elementBuffer.bufferData(indices);
-
-    renderComponent.vertexArray.bindVertexBuffer(renderComponent.vertexBuffer, {
-            VertexArrayAttrib(0, VertexType::Float, 3), // position
-            VertexArrayAttrib(1, VertexType::Float, 3), // color
-            VertexArrayAttrib(2, VertexType::Float, 3), // normal
-            VertexArrayAttrib(3, VertexType::Float, 2)  // texture coord
-    });
-    renderComponent.vertexArray.bindElementBuffer(renderComponent.elementBuffer);
-
-    renderComponent.indirectCommandBuffer.init(commands);
 
     renderComponentCache[path] = renderComponent;
 
     return renderComponent;
 }
 
-std::shared_ptr<Model> ModelLoader::loadModel(const char *path) {
-    return loadObjModel(path);
-}
-
-std::shared_ptr<Model> ModelLoader::loadObjModel(const char *path) {
-    if (modelCache.find(path) != modelCache.end()) {
-        return modelCache[path];
-    }
-
+static const aiScene *loadModel(const char *path) {
     std::filesystem::path filePath(path);
 
-    tinyobj::ObjReaderConfig readerConfig;
-    readerConfig.mtl_search_path = filePath.parent_path().string();
-    readerConfig.triangulate = true;
+    static Assimp::Importer importer;
+    const aiScene *scene = importer.ReadFile(path,
+                                             aiProcess_Triangulate |
+                                             aiProcess_GenNormals |
+                                             aiProcess_JoinIdenticalVertices);
 
-    tinyobj::ObjReader reader;
-
-    if (!reader.ParseFromFile(path, readerConfig)) {
-        if (!reader.Error().empty()) {
-            LogCore::error("TinyObjReader: {}", reader.Error());
-        }
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        Log::error("Assimp error: {}", importer.GetErrorString());
         return nullptr;
     }
 
-    if (!reader.Warning().empty()) {
-        LogCore::warning("TinyObjReader: {}", reader.Warning());
-    }
-
-    std::shared_ptr<Model> model = std::make_shared<Model>();
-
-    auto &attrib = reader.GetAttrib();
-    auto &shapes = reader.GetShapes();
-    auto &materials = reader.GetMaterials();
-
-    for (const auto &shape: shapes) {
-        Mesh mesh;
-        std::unordered_map<Vertex, uint32_t> uniqueVertices;
-
-        for (const auto &index: shape.mesh.indices) {
-            Vertex vertex{};
-            vertex.position = {
-                    attrib.vertices[3 * index.vertex_index + 0],
-                    attrib.vertices[3 * index.vertex_index + 1],
-                    attrib.vertices[3 * index.vertex_index + 2]
-            };
-            vertex.color = {
-                    attrib.colors[3 * index.vertex_index + 0],
-                    attrib.colors[3 * index.vertex_index + 1],
-                    attrib.colors[3 * index.vertex_index + 2]
-            };
-            vertex.normal = {
-                    attrib.normals[3 * index.normal_index + 0],
-                    attrib.normals[3 * index.normal_index + 1],
-                    attrib.normals[3 * index.normal_index + 2]
-            };
-            vertex.texCoord = {
-                    attrib.texcoords[2 * index.texcoord_index + 0],
-                    attrib.texcoords[2 * index.texcoord_index + 1]
-            };
-            if (uniqueVertices.find(vertex) == uniqueVertices.end()) {
-                uniqueVertices[vertex] = mesh.vertices.size();
-                mesh.vertices.push_back(vertex);
-            }
-            mesh.indices.push_back(uniqueVertices[vertex]);
-        }
-
-        if (!materials[shape.mesh.material_ids[0]].diffuse_texname.empty()) {
-            std::filesystem::path diffusePath =
-                    filePath.parent_path() / materials[shape.mesh.material_ids[0]].diffuse_texname;
-            mesh.diffusePath = diffusePath.string();
-        }
-
-        mesh.materialIndex = materialsCount;
-
-        model->meshes.push_back(mesh);
-        ++materialsCount;
-    }
-    modelCache[path] = model;
-    return model;
+    return scene;
 }
-

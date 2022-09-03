@@ -26,8 +26,15 @@ RendererSystem::RendererSystem(Context &context, Input &input)
 
     for (auto entity: view) {
         auto [render, model] = view.get<RenderComponent, ModelComponent>(entity);
-
+        // measure time
+        auto start = std::chrono::high_resolution_clock::now();
         render = ModelLoader::getRenderComponent(model);
+        auto end = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+        LogCore::info("Loaded model: {} vertices: {} indices: {} in {} ms",
+                      model.path, render.posBuffer.getSize() / sizeof(float) / 3,
+                      render.indexBuffer.getSize() / sizeof(uint32_t),
+                      elapsed);
     }
 
     shader.setBuffer("uMaterialArray", ModelLoader::getMaterialBuffer(), 0);
@@ -43,8 +50,11 @@ RendererSystem::~RendererSystem() {
     for (auto entity: view) {
         auto [renderComp] = view.get(entity);
         renderComp.vertexArray.destroy();
-        renderComp.vertexBuffer.destroy();
-        renderComp.elementBuffer.destroy();
+        renderComp.posBuffer.destroy();
+        renderComp.colorBuffer.destroy();
+        renderComp.normalBuffer.destroy();
+        renderComp.texCoordBuffer.destroy();
+        renderComp.indexBuffer.destroy();
     }
 }
 

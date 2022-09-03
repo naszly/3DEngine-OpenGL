@@ -45,43 +45,37 @@ CPMAddPackage(
         NAME EnTT
         GITHUB_REPOSITORY skypjack/entt
         GIT_TAG v3.10.1
+        EXCLUDE_FROM_ALL YES
 )
 
 CPMAddPackage(
         NAME stb
         GITHUB_REPOSITORY gracicot/stb-cmake
         GIT_TAG master
+        EXCLUDE_FROM_ALL YES
         OPTIONS
         "STB_EXPORT OFF"
         "STB_INSTALL OFF"
 )
 
 CPMAddPackage(
-        NAME tinygltf
-        GITHUB_REPOSITORY syoyo/tinygltf
-        GIT_TAG master
+        NAME assimp
+        GITHUB_REPOSITORY assimp/assimp
+        GIT_TAG master # v5.2.4 (latest) version does not compile
+        EXCLUDE_FROM_ALL YES
         OPTIONS
-        "TINYGLTF_HEADER_ONLY OFF"
-        "TINYGLTF_INSTALL OFF"
-        "TINYGLTF_BUILD_TESTS OFF"
-        "TINYGLTF_BUILD_EXAMPLES OFF"
-        "TINYGLTF_BUILD_LOADER_EXAMPLE OFF"
-)
-
-CPMAddPackage(
-        NAME tinyobjloader
-        GITHUB_REPOSITORY tinyobjloader/tinyobjloader
-        GIT_TAG master
-        OPTIONS
-        "TINYOBJLOADER_USE_DOUBLE OFF"
-        "TINYOBJLOADER_BUILD_TEST_LOADER OFF"
-        "TINYOBJLOADER_BUILD_OBJ_STICHER OFF"
+        "BUILD_SHARED_LIBS OFF"
+        "ASSIMP_NO_EXPORT ON"
+        "ASSIMP_BUILD_ASSIMP_TOOLS OFF"
+        "ASSIMP_BUILD_TESTS OFF"
+        "ASSIMP_INSTALL OFF"
 )
 
 CPMAddPackage(
         NAME magic_enum
         GITHUB_REPOSITORY Neargye/magic_enum
         GIT_TAG v0.8.1
+        EXCLUDE_FROM_ALL YES
 )
 
 file(
@@ -105,7 +99,7 @@ target_link_libraries(
         ImGui
         EnTT
         stb::image
-        tinyobjloader
+        assimp
         magic_enum
 )
 

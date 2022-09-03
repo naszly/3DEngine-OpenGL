@@ -4,7 +4,7 @@
 
 #define MAX_MATERIALS 1024u
 
-layout(location = 0) in vec3 vColor;
+layout(location = 0) in vec4 vColor;
 layout(location = 1) in vec2 vTexCoord;
 layout(location = 2) flat in uint vMaterialIndex;
 
@@ -36,5 +36,5 @@ vec4 sampleTexture(sampler2D sampler, vec2 texCoord) {
 void main() {
     sampler2D diffuse = getMaterial(vMaterialIndex).diffuse;
     vec4 textureColor = sampleTexture(diffuse, vTexCoord);
-    color = vec4(vColor, 1.0) * textureColor;
+    color = vColor * textureColor;
 }

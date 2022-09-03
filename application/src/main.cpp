@@ -22,28 +22,13 @@ int main() {
             1000.0f // far
     );
 
-    auto entity1 = entityManager->buildEntity();
-    entity1.addComponent<RenderComponent>();
-    entity1.addComponent<ModelComponent>("resources/Sponza/sponza.obj");
-    entity1.addComponent<TransformComponent>(glm::vec3(0.0f, 0.0f, 0.0f),
+    auto sponza = entityManager->buildEntity();
+    sponza.addComponent<RenderComponent>();
+    sponza.addComponent<ModelComponent>("resources/Sponza/sponza.obj");
+    sponza.addComponent<TransformComponent>(glm::vec3(0.0f, 0.0f, 0.0f),
                                              glm::vec3(0.0f, 0.0f, 0.0f),
                                              glm::vec3(0.1f, 0.1f, 0.1f));
-    entity1.addTag("sponza");
 
-    auto entity3 = entityManager->buildEntity();
-    entity3.addComponent<RenderComponent>();
-    entity3.addComponent<ModelComponent>("resources/boxes.obj");
-    entity3.addComponent<TransformComponent>(glm::vec3(0.0f, 4.0f, 0.0f),
-                                             glm::vec3(0.0f, 0.0f, 0.0f),
-                                             glm::vec3(4.0f, 4.0f, 4.0f));
-/*
-    auto entity2 = entityManager->buildEntity();
-    entity2.addComponent<RenderComponent>();
-    entity2.addComponent<ModelComponent>("resources/Sponza/sponza.obj");
-    entity2.addComponent<TransformComponent>(glm::vec3(0.0f, 0.0f, 250.0f),
-                                             glm::vec3(0.0f, 0.0f, 0.0f),
-                                             glm::vec3(0.1f, 0.1f, 0.1f));
-*/
 
     engine.getWindow().addLayer<RendererSystem, CameraControllerSystem>("3dScene");
     engine.getWindow().addLayer<GuiSystem>("gui");
