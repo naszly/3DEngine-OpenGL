@@ -20,6 +20,13 @@ RenderComponent ModelLoader::getRenderComponent(const ModelComponent &modelCompo
         return renderComponentCache[path];
     }
 
+    if (materialBuffer.getId() == 0) {
+        materialBuffer.init();
+        materialArray[0] = Material{};
+        materialsCount = 1;
+        materialBuffer.bufferData(&materialArray[0], materialsCount * (GLsizeiptr) sizeof(materialArray[0]));
+    }
+
     RenderComponent renderComponent;
 
     const aiScene *scene = loadModel(path.c_str());
@@ -36,6 +43,15 @@ RenderComponent ModelLoader::getRenderComponent(const ModelComponent &modelCompo
 
             Material materialStruct{};
 
+            if (material->GetTextureCount(aiTextureType_AMBIENT) > 0) {
+                BindlessTexture bindlessTexture;
+                aiString texturePath;
+                material->GetTexture(aiTextureType_AMBIENT, 0, &texturePath);
+                std::filesystem::path textureFullPath = modelPath.parent_path() / texturePath.C_Str();
+                bindlessTexture.init(textureFullPath.string().c_str());
+                materialStruct.ambientMap = bindlessTexture.getId();
+            }
+
             if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
                 BindlessTexture bindlessTexture;
                 aiString texturePath;
@@ -45,16 +61,59 @@ RenderComponent ModelLoader::getRenderComponent(const ModelComponent &modelCompo
                 materialStruct.diffuseMap = bindlessTexture.getId();
             }
 
+            if (material->GetTextureCount(aiTextureType_SPECULAR) > 0) {
+                BindlessTexture bindlessTexture;
+                aiString texturePath;
+                material->GetTexture(aiTextureType_SPECULAR, 0, &texturePath);
+                std::filesystem::path textureFullPath = modelPath.parent_path() / texturePath.C_Str();
+                bindlessTexture.init(textureFullPath.string().c_str());
+                materialStruct.specularMap = bindlessTexture.getId();
+            }
+
+            if (material->GetTextureCount(aiTextureType_NORMALS) > 0) {
+                BindlessTexture bindlessTexture;
+                aiString texturePath;
+                material->GetTexture(aiTextureType_NORMALS, 0, &texturePath);
+                std::filesystem::path textureFullPath = modelPath.parent_path() / texturePath.C_Str();
+                bindlessTexture.init(textureFullPath.string().c_str());
+                materialStruct.normalMap = bindlessTexture.getId();
+            }
+
+            aiColor3D color;
+            if (material->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS) {
+                materialStruct.ambientColor = glm::vec3(color.r, color.g, color.b);
+            }
+
+            if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
+                materialStruct.diffuseColor = glm::vec3(color.r, color.g, color.b);
+            }
+
+            if (material->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS) {
+                materialStruct.specularColor = glm::vec3(color.r, color.g, color.b);
+            }
+
+            float opacity;
+            if (material->Get(AI_MATKEY_OPACITY, opacity) == AI_SUCCESS) {
+                materialStruct.opacity = opacity;
+            }
+
+            float shininess;
+            if (material->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
+                materialStruct.shininess = shininess;
+            }
+
+            float shininessStrength;
+            if (material->Get(AI_MATKEY_SHININESS_STRENGTH, shininessStrength) == AI_SUCCESS) {
+                materialStruct.specularStrength = shininessStrength;
+            }
+
             if (materialStruct.empty()) {
-                materialIndices.push_back(UINT32_MAX);
+                materialIndices.push_back(0);
             } else {
                 materialArray[materialsCount] = materialStruct;
                 materialIndices.push_back(materialsCount);
                 materialsCount++;
             }
-
-            if (materialBuffer.getId() == 0)
-                materialBuffer.init();
 
             materialBuffer.bufferData(&materialArray[0], materialsCount * (GLsizeiptr) sizeof(materialArray[0]));
         }
@@ -75,7 +134,6 @@ RenderComponent ModelLoader::getRenderComponent(const ModelComponent &modelCompo
 
         auto *positions = new aiVector3D[vertexCount];
         auto *normals = new aiVector3D[vertexCount];
-        auto *colors = new aiColor4D[vertexCount];
         auto *texCoords = new aiVector2D[vertexCount];
 
         auto *indices = new uint32_t[indexCount];
@@ -86,7 +144,7 @@ RenderComponent ModelLoader::getRenderComponent(const ModelComponent &modelCompo
 
             GLuint materialIndex = mesh->mMaterialIndex < materialIndices.size() ?
                                    materialIndices[mesh->mMaterialIndex] :
-                                   UINT32_MAX;
+                                   0;
 
             commands.emplace_back(DrawElementsIndirectCommand{
                     .count = static_cast<GLuint>(mesh->mNumFaces * 3),
@@ -98,13 +156,6 @@ RenderComponent ModelLoader::getRenderComponent(const ModelComponent &modelCompo
 
             memcpy(&positions[vertexOffset], mesh->mVertices, sizeof(aiVector3D) * mesh->mNumVertices);
             memcpy(&normals[vertexOffset], mesh->mNormals, sizeof(aiVector3D) * mesh->mNumVertices);
-
-            if (mesh->HasVertexColors(0)) {
-                memcpy(&colors[vertexOffset], mesh->mColors[0], sizeof(aiColor4D) * mesh->mNumVertices);
-            } else {
-                for (int j = 0; j < mesh->mNumVertices; ++j)
-                    colors[vertexOffset + j] = aiColor4D(1.0f, 1.0f, 1.0f, 1.0f);
-            }
 
             if (mesh->HasTextureCoords(0)) {
                 for (int j = 0; j < mesh->mNumVertices; ++j)
@@ -129,8 +180,6 @@ RenderComponent ModelLoader::getRenderComponent(const ModelComponent &modelCompo
         renderComponent.posBuffer.bufferData(positions, sizeof(aiVector3D) * vertexCount);
         renderComponent.normalBuffer.init();
         renderComponent.normalBuffer.bufferData(normals, sizeof(aiVector3D) * vertexCount);
-        renderComponent.colorBuffer.init();
-        renderComponent.colorBuffer.bufferData(colors, sizeof(aiColor4D) * vertexCount);
         renderComponent.texCoordBuffer.init();
         renderComponent.texCoordBuffer.bufferData(texCoords, sizeof(aiVector2D) * vertexCount);
         renderComponent.indexBuffer.init();
@@ -142,11 +191,8 @@ RenderComponent ModelLoader::getRenderComponent(const ModelComponent &modelCompo
         renderComponent.vertexArray.bindVertexBuffer(renderComponent.normalBuffer, {
                 VertexArrayAttrib(1, VertexType::Float, 3), // normal
         });
-        renderComponent.vertexArray.bindVertexBuffer(renderComponent.colorBuffer, {
-                VertexArrayAttrib(2, VertexType::Float, 4), // color
-        });
         renderComponent.vertexArray.bindVertexBuffer(renderComponent.texCoordBuffer, {
-                VertexArrayAttrib(3, VertexType::Float, 2), // texCoord
+                VertexArrayAttrib(2, VertexType::Float, 2), // texCoord
         });
         renderComponent.vertexArray.bindElementBuffer(renderComponent.indexBuffer);
 
@@ -155,7 +201,6 @@ RenderComponent ModelLoader::getRenderComponent(const ModelComponent &modelCompo
         delete[] positions;
         delete[] normals;
         delete[] texCoords;
-        delete[] colors;
         delete[] indices;
     }
 

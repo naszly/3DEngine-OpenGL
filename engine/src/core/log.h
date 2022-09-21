@@ -11,7 +11,7 @@
 #ifndef NDEBUG
 #define LOG_LEVEL spdlog::level::trace
 #else
-#define LOG_LEVEL spdlog::level::warn
+#define LOG_LEVEL spdlog::level::info
 #endif
 
 namespace impl {

@@ -21,7 +21,6 @@ struct TransformComponent {
 struct RenderComponent {
     VertexArray vertexArray;
     Buffer posBuffer;
-    Buffer colorBuffer;
     Buffer normalBuffer;
     Buffer texCoordBuffer;
     Buffer indexBuffer;

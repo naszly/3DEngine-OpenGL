@@ -37,7 +37,15 @@ RendererSystem::RendererSystem(Context &context, Input &input)
                       elapsed);
     }
 
+    shader.bind();
+
     shader.setBuffer("uMaterialArray", ModelLoader::getMaterialBuffer(), 0);
+
+    shader.setVec3("uDirectionalLight.color", glm::vec3(1.0f, 1.0f, 1.0f));
+    shader.setVec3("uDirectionalLight.direction", glm::vec3(0.0f, 1.0f, 0.0f));
+    shader.setFloat("uDirectionalLight.ambientStrength", 0.1f);
+    shader.setFloat("uDirectionalLight.diffuseStrength", 0.8f);
+
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -51,7 +59,6 @@ RendererSystem::~RendererSystem() {
         auto [renderComp] = view.get(entity);
         renderComp.vertexArray.destroy();
         renderComp.posBuffer.destroy();
-        renderComp.colorBuffer.destroy();
         renderComp.normalBuffer.destroy();
         renderComp.texCoordBuffer.destroy();
         renderComp.indexBuffer.destroy();
@@ -73,6 +80,7 @@ void RendererSystem::render() {
 
     shader.setMat4("uProjection", camera.getProjectionMatrix());
     shader.setMat4("uView", camera.getViewMatrix());
+    shader.setVec3("uCameraPosition", camera.position);
 
     auto view = entityManager->getRegistry().view<RenderComponent, TransformComponent>();
     for (auto entity: view) {

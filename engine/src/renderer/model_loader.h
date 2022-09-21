@@ -8,12 +8,32 @@
 #include "ecs/components.h"
 
 struct Material {
+    glm::vec3 ambientColor{0.0f};
+    float opacity{1.0f};
+    glm::vec3 diffuseColor{0.0f};
+    float shininess{0};
+    glm::vec3 specularColor{0.0f};
+    float specularStrength{1.0f};
+    GLuint64 ambientMap{0};
     GLuint64 diffuseMap{0};
     GLuint64 specularMap{0};
     GLuint64 normalMap{0};
 
     [[nodiscard]] bool empty() const {
-        return diffuseMap == 0 && specularMap == 0 && normalMap == 0;
+        Material emptyMaterial;
+        return *this == emptyMaterial;
+    }
+
+    bool operator==(const Material &other) const {
+        return ambientColor == other.ambientColor &&
+               diffuseColor == other.diffuseColor &&
+               specularColor == other.specularColor &&
+               diffuseMap == other.diffuseMap &&
+               specularMap == other.specularMap &&
+               normalMap == other.normalMap &&
+               opacity == other.opacity &&
+               shininess == other.shininess &&
+               specularStrength == other.specularStrength;
     }
 };
 
