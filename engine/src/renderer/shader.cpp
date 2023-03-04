@@ -167,7 +167,7 @@ void Shader::checkCompileErrors(unsigned int shader, const std::string &type) {
 }
 
 void Shader::getUniforms() {
-    GLint i;
+    GLuint i;
     GLint count;
 
     GLint size; // size of the variable
@@ -181,10 +181,10 @@ void Shader::getUniforms() {
     LogOpenGL::info("Active Uniforms: {0}", count);
 
     for (i = 0; i < count; i++) {
-        glGetActiveUniform(id, (GLuint) i, bufSize, &length, &size, &type, name);
+        glGetActiveUniform(id, i, bufSize, &length, &size, &type, name);
 
         //LogOpenGL::info("Uniform #{0} Type: {1} Name: {2}", i, type, name);
-        uniformLocations[name] = i;
+        uniformLocations[name] = glGetUniformLocation(id, name);
     }
 }
 
